@@ -1,0 +1,13 @@
+# Railway 部署命令 - 直接复制执行
+
+# 第一步：添加所有文件到Git
+git add .
+
+# 第二步：提交更改
+git commit -m "fix: 更新package-lock.json，添加Railway部署配置"
+
+# 第三步：推送到GitHub
+git push origin main
+
+# 完成！Railway 会自动检测并重新部署
+
