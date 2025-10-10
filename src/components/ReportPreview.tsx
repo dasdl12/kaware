@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import { useRef, forwardRef, useImperativeHandle } from 'react';
 import { ReportData, BaseConfig } from '../types';
 import { DoubleRingChart } from './DoubleRingChart';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -32,7 +32,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
       '#81C784', '#AED581', '#FFCC02', '#FFB74D'
     ];
 
-    const barColors = sortedManagementScores.map((item, index) => 
+    const barColors = sortedManagementScores.map((_item, index) => 
       gradientColors[index % gradientColors.length]
     );
 
@@ -97,7 +97,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
             font: {
               family: '-apple-system, BlinkMacSystemFont, sans-serif',
               size: 11,
-              weight: '500' as const
+              weight: 500
             },
             color: '#1d1d1f',
             maxRotation: 0

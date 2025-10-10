@@ -1,8 +1,9 @@
 {
   "name": "assessment-report-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "管理觉察测评报告生成系统",
   "private": true,
+  "type": "module",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -13,7 +14,8 @@
     "xlsx": "^0.18.5",
     "html-to-image": "^1.11.11",
     "jszip": "^3.10.1",
-    "file-saver": "^2.0.5"
+    "file-saver": "^2.0.5",
+    "serve": "^14.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.45",
@@ -27,7 +29,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -s dist -l 3000"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
 

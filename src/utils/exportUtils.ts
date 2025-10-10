@@ -76,7 +76,7 @@ export const exportToPNG = async (element: HTMLElement, filename: string) => {
       skipAutoScale: false,
       preferredFontFormat: 'woff2',
       backgroundColor: '#f5f7fa',
-      filter: (node) => {
+      filter: () => {
         // 确保所有节点都被包含
         return true;
       },
@@ -117,7 +117,7 @@ export const exportToJPEG = async (element: HTMLElement, filename: string) => {
       skipAutoScale: false,
       preferredFontFormat: 'woff2',
       backgroundColor: '#ffffff',
-      filter: (node) => {
+      filter: () => {
         // 确保所有节点都被包含
         return true;
       },
@@ -238,7 +238,7 @@ export const batchExportPNG = async (
         skipFonts: false,
         includeQueryParams: true,
         backgroundColor: '#f5f7fa',
-        filter: (node) => {
+        filter: () => {
           return true;
         },
         style: {
@@ -295,7 +295,7 @@ export const batchExportJPEG = async (
         skipFonts: false,
         includeQueryParams: true,
         backgroundColor: '#ffffff',
-        filter: (node) => {
+        filter: () => {
           return true;
         },
         style: {

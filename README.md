@@ -187,6 +187,48 @@ src/
 - 🆕 批量导出建议单次不超过50份报告
 - 批量导出时请勿切换页面，等待处理完成
 
+## 🚀 部署到 Railway
+
+### 快速部署步骤
+
+1. **通过 GitHub 自动部署（推荐）**
+   ```bash
+   # 推送代码到 GitHub
+   git add .
+   git commit -m "feat: 准备Railway部署"
+   git push origin main
+   ```
+   
+   然后访问 [railway.app](https://railway.app)：
+   - 点击 "New Project"
+   - 选择 "Deploy from GitHub repo"
+   - 选择您的仓库
+   - Railway 自动检测配置并部署
+
+2. **通过 Railway CLI**
+   ```bash
+   # 安装 CLI
+   npm install -g @railway/cli
+   
+   # 登录
+   railway login
+   
+   # 初始化并部署
+   railway init
+   railway up
+   ```
+
+详细部署指南请查看 [DEPLOY.md](./DEPLOY.md)
+
+### 部署后访问
+
+部署成功后，您会获得一个 Railway URL：
+```
+https://your-project.up.railway.app
+```
+
+可以分享此链接给团队成员直接使用！
+
 ## License
 
 MIT

@@ -201,7 +201,7 @@ const App: React.FC = () => {
               skipFonts: false,
               includeQueryParams: true,
               backgroundColor: '#f5f7fa',
-              filter: (node) => true,
+              filter: () => true,
               style: {
                 margin: '0',
                 padding: '0',
@@ -271,7 +271,7 @@ const App: React.FC = () => {
               skipFonts: false,
               includeQueryParams: true,
               backgroundColor: '#ffffff',
-              filter: (node) => true,
+              filter: () => true,
               style: {
                 margin: '0',
                 padding: '0',

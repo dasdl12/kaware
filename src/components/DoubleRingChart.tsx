@@ -25,12 +25,7 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
     const centerY = 200;
 
     // 外环配置
-    const outerRadius = 160;
     const outerInnerRadius = 115;
-
-    // 内环配置
-    const innerRadius = 110;
-    const innerInnerRadius = 80;
 
     // 创建渐变定义
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');

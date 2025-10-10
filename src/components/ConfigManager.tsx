@@ -3,7 +3,6 @@ import { Tabs, Form, Input, Upload, Button, Table, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
 import { BaseConfig, ManagementTypeDetail } from '../types';
-import { managementTypesConfig, defaultBaseConfig } from '../config/managementTypes';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -77,7 +76,7 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
       title: '模式',
       dataIndex: 'type',
       key: 'type',
-      render: (text: string, record: any, index: number) => (
+      render: (text: string, _record: any, index: number) => (
         <Input 
           value={text} 
           onChange={(e) => updateTypeDefinition(index, 'type', e.target.value)}
@@ -88,7 +87,7 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
       title: '定义',
       dataIndex: 'definition',
       key: 'definition',
-      render: (text: string, record: any, index: number) => (
+      render: (text: string, _record: any, index: number) => (
         <Input 
           value={text} 
           onChange={(e) => updateTypeDefinition(index, 'definition', e.target.value)}
