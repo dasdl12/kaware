@@ -3,6 +3,7 @@ import { Tabs, Form, Input, Upload, Button, Table, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
 import { BaseConfig, ManagementTypeDetail } from '../types';
+import { saveSharedConfig } from '../utils/sharedConfigApi';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -50,13 +51,14 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
 
   // 管理类型配置更新
   const updateManagementConfig = (type: string, field: keyof ManagementTypeDetail, value: string) => {
-    onManagementConfigChange({
+    const next = {
       ...managementConfigs,
       [type]: {
         ...managementConfigs[type],
         [field]: value
       }
-    });
+    };
+    onManagementConfigChange(next);
   };
 
   // 图片上传处理
@@ -95,6 +97,15 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
       )
     }
   ];
+
+  const handleSaveShared = async () => {
+    try {
+      await saveSharedConfig({ baseConfig, managementConfigs });
+      message.success('共享配置已保存（全员可见）');
+    } catch (e) {
+      message.error('保存共享配置失败');
+    }
+  };
 
   return (
     <div style={{ background: 'white', padding: '24px', borderRadius: '8px' }}>
@@ -272,6 +283,9 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
               )}
             </Form.Item>
           </Form>
+          <div style={{ textAlign: 'right' }}>
+            <Button type="primary" onClick={handleSaveShared}>保存为共享配置（全站生效）</Button>
+          </div>
         </TabPane>
       </Tabs>
     </div>

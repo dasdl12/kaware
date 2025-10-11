@@ -7,6 +7,7 @@ import { processBatchExcelData } from './utils/dataProcessor';
 import { ReportPreview, ReportPreviewHandle } from './components/ReportPreview';
 import { ConfigManager } from './components/ConfigManager';
 import { exportToHTML, exportToPNG, exportToJPEG, batchExportHTML } from './utils/exportUtils';
+import { saveSharedConfig, loadSharedConfig } from './utils/sharedConfigApi';
 import { ExcelDataRow, ReportData, BaseConfig, ManagementTypeDetail } from './types';
 import { managementTypesConfig, defaultBaseConfig } from './config/managementTypes';
 import './App.css';
@@ -50,6 +51,15 @@ const App: React.FC = () => {
       localStorage.setItem('report_management_configs', JSON.stringify(managementConfigs));
     } catch {}
   }, [managementConfigs]);
+
+  // 首次加载尝试拉取共享配置（若存在则覆盖本地）
+  useEffect(() => {
+    (async () => {
+      const shared = await loadSharedConfig();
+      if (shared.baseConfig) setBaseConfig(shared.baseConfig);
+      if (shared.managementConfigs) setManagementConfigs(shared.managementConfigs);
+    })();
+  }, []);
   const reportRef = useRef<ReportPreviewHandle>(null);
   const allReportRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
