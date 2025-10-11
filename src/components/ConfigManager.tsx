@@ -285,7 +285,7 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
           </Form>
         </TabPane>
 
-        {/* 附录配置 */}
+        {/* 附录配置（二维码已改为按类型配置） */}
         <TabPane tab="附录" key="appendix">
           <Form layout="vertical">
             <Form.Item label="附录文字">
@@ -295,19 +295,7 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
                 rows={3}
               />
             </Form.Item>
-
-            <Form.Item label="二维码图片">
-              <Upload
-                beforeUpload={(file) => handleImageUpload('qrCode', file)}
-                maxCount={1}
-                accept="image/*"
-              >
-                <Button icon={<UploadOutlined />}>上传二维码</Button>
-              </Upload>
-              {baseConfig.qrCode && (
-                <img src={baseConfig.qrCode} alt="QR Code" style={{ marginTop: '10px', width: '150px' }} />
-              )}
-            </Form.Item>
+            <div style={{ color: '#666' }}>说明：附录二维码随主类型变化展示，请在“详细分析”中为各类型分别上传二维码。</div>
           </Form>
           <div style={{ textAlign: 'right' }}>
             <Button type="primary" onClick={handleSaveShared}>保存为共享配置（全站生效）</Button>
