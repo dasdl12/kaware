@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 // 简单的内存存储（无数据库版本）。生产可切换到KV/DB。
 let sharedBaseConfig = null;

@@ -48,6 +48,7 @@ export interface ManagementTypeDetail {
   title: string; // 完整标题
   motto: string; // 引语
   avatar: string; // 头像路径
+  qrCode?: string; // 每个类型独立二维码
   advantage: string; // 优势初衷
   behavior: string; // 典型行为
   risk: string; // 潜在风险

@@ -251,7 +251,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
             <h2 className="section-title">四、附录</h2>
             <div className="appendix">
               <img 
-                src={baseConfig.qrCode} 
+                src={reportData.typeDetail.qrCode || baseConfig.qrCode} 
                 alt="二维码" 
                 style={{ 
                   width: '150px', 

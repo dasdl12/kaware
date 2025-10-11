@@ -225,6 +225,32 @@ export const ConfigManager: React.FC<ConfigManagerProps> = ({
               )}
             </Form.Item>
 
+            <Form.Item label="二维码图片">
+              <Upload
+                beforeUpload={(file) => {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    const dataUrl = e.target?.result as string;
+                    updateManagementConfig(selectedType, 'qrCode' as any, dataUrl);
+                    message.success('二维码上传成功');
+                  };
+                  reader.readAsDataURL(file as any);
+                  return false;
+                }}
+                maxCount={1}
+                accept="image/*"
+              >
+                <Button icon={<UploadOutlined />}>上传类型二维码</Button>
+              </Upload>
+              {managementConfigs[selectedType]?.qrCode && (
+                <img 
+                  src={managementConfigs[selectedType].qrCode as string} 
+                  alt="Type QRCode" 
+                  style={{ marginTop: '10px', width: '120px', height: '120px', borderRadius: '8px' }} 
+                />
+              )}
+            </Form.Item>
+
             <Form.Item label="优势初衷">
               <TextArea
                 value={managementConfigs[selectedType]?.advantage}
