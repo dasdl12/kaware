@@ -3,9 +3,10 @@ import { ReportData, BaseConfig } from '../types';
 import { DoubleRingChart } from './DoubleRingChart';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import './ReportPreview.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 interface ReportPreviewProps {
   reportData: ReportData;
@@ -48,7 +49,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
       }]
     };
 
-    const chartOptions = {
+    const chartOptions: any = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -65,6 +66,18 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
               return context.label + ': ' + context.parsed.y.toFixed(1) + '分';
             }
           }
+        },
+        // 在柱子顶部显示分数
+        datalabels: {
+          anchor: 'end' as const,
+          align: 'end' as const,
+          color: '#1a1a1a',
+          font: {
+            family: '-apple-system, BlinkMacSystemFont, sans-serif',
+            weight: 600,
+            size: 12
+          },
+          formatter: (value: number) => `${value}`
         }
       },
       interaction: {
