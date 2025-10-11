@@ -77,7 +77,7 @@ const App: React.FC = () => {
       }
 
       setExcelData(data);
-      const reports = processBatchExcelData(data);
+      const reports = processBatchExcelData(data, managementConfigs);
       setReportDataList(reports);
       setSelectedReportIndex(0);
       setActiveView('preview');
@@ -415,7 +415,14 @@ const App: React.FC = () => {
                 baseConfig={baseConfig}
                 onConfigChange={setBaseConfig}
                 managementConfigs={managementConfigs}
-                onManagementConfigChange={setManagementConfigs}
+                onManagementConfigChange={(cfgs) => {
+                  setManagementConfigs(cfgs);
+                  // 若已加载数据，则实时重算报告以反映二维码等变化
+                  if (excelData.length > 0) {
+                    const newReports = processBatchExcelData(excelData, cfgs);
+                    setReportDataList(newReports);
+                  }
+                }}
               />
             </Card>
           )}

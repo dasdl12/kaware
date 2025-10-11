@@ -1,4 +1,4 @@
-import { ExcelDataRow, DoubleRingData, RingDataItem, ManagementTypeScore, ReportData } from '../types';
+import { ExcelDataRow, DoubleRingData, RingDataItem, ManagementTypeScore, ReportData, ManagementTypeDetail } from '../types';
 import { managementTypesConfig } from '../config/managementTypes';
 import { parseExcelDate } from './dateParser';
 
@@ -20,7 +20,7 @@ const calculateRankAndThickness = (items: Array<{ label: string; value: number }
 /**
  * 处理Excel数据生成报告数据
  */
-export const processExcelData = (row: ExcelDataRow): ReportData => {
+export const processExcelData = (row: ExcelDataRow, currentConfigs?: Record<string, ManagementTypeDetail>): ReportData => {
   // 处理外环数据（胜任力）
   const outerData = calculateRankAndThickness([
     { label: '想明白', value: row.想明白 },
@@ -63,8 +63,9 @@ export const processExcelData = (row: ExcelDataRow): ReportData => {
   const primaryTypeScore = [...managementScores].sort((a, b) => b.value - a.value)[0];
   const primaryType = primaryTypeScore.label;
   
-  // 获取主类型的详细配置
-  const typeDetail = managementTypesConfig[primaryType];
+  // 获取主类型的详细配置（优先使用当前配置，其次默认配置）
+  const sourceConfigs = currentConfigs ?? managementTypesConfig;
+  const typeDetail = sourceConfigs[primaryType] ?? managementTypesConfig[primaryType];
   
   return {
     name: row.姓名,
@@ -79,8 +80,8 @@ export const processExcelData = (row: ExcelDataRow): ReportData => {
 /**
  * 批量处理Excel数据
  */
-export const processBatchExcelData = (data: ExcelDataRow[]): ReportData[] => {
-  return data.map(row => processExcelData(row));
+export const processBatchExcelData = (data: ExcelDataRow[], currentConfigs?: Record<string, ManagementTypeDetail>): ReportData[] => {
+  return data.map(row => processExcelData(row, currentConfigs));
 };
 
 
