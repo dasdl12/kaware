@@ -7,7 +7,7 @@ import { processBatchExcelData } from './utils/dataProcessor';
 import { ReportPreview, ReportPreviewHandle } from './components/ReportPreview';
 import { ConfigManager } from './components/ConfigManager';
 import { exportToHTML, exportToPNG, exportToJPEG, batchExportHTML } from './utils/exportUtils';
-import { saveSharedConfig, loadSharedConfig } from './utils/sharedConfigApi';
+import { loadSharedConfig } from './utils/sharedConfigApi';
 import { ExcelDataRow, ReportData, BaseConfig, ManagementTypeDetail } from './types';
 import { managementTypesConfig, defaultBaseConfig } from './config/managementTypes';
 import './App.css';
