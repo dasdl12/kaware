@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Layout, Button, Upload, message, Spin, Select, Space, Card, Row, Col } from 'antd';
 import { UploadOutlined, DownloadOutlined, FileTextOutlined, PictureOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
@@ -19,12 +19,37 @@ const App: React.FC = () => {
   const [reportDataList, setReportDataList] = useState<ReportData[]>([]);
   const [selectedReportIndex, setSelectedReportIndex] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const [baseConfig, setBaseConfig] = useState<BaseConfig>(defaultBaseConfig);
-  const [managementConfigs, setManagementConfigs] = useState<Record<string, ManagementTypeDetail>>(managementTypesConfig);
+  // 从localStorage恢复配置
+  const [baseConfig, setBaseConfig] = useState<BaseConfig>(() => {
+    try {
+      const saved = localStorage.getItem('report_base_config');
+      return saved ? JSON.parse(saved) as BaseConfig : defaultBaseConfig;
+    } catch {
+      return defaultBaseConfig;
+    }
+  });
+  const [managementConfigs, setManagementConfigs] = useState<Record<string, ManagementTypeDetail>>(() => {
+    try {
+      const saved = localStorage.getItem('report_management_configs');
+      return saved ? JSON.parse(saved) as Record<string, ManagementTypeDetail> : managementTypesConfig;
+    } catch {
+      return managementTypesConfig;
+    }
+  });
   const [activeView, setActiveView] = useState<'upload' | 'config' | 'preview'>('upload');
   const [batchExporting, setBatchExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState({ current: 0, total: 0 });
-  
+  // 持久化配置
+  useEffect(() => {
+    try {
+      localStorage.setItem('report_base_config', JSON.stringify(baseConfig));
+    } catch {}
+  }, [baseConfig]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('report_management_configs', JSON.stringify(managementConfigs));
+    } catch {}
+  }, [managementConfigs]);
   const reportRef = useRef<ReportPreviewHandle>(null);
   const allReportRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
