@@ -161,7 +161,7 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
       }
       
       text.setAttribute('transform', `rotate(${textRotation}, ${labelX}, ${labelY})`);
-      text.textContent = `(${item.label} ${Math.round(item.value)})`;
+      text.textContent = `${item.label} ${Math.round(item.value)}`;
       outerRing.appendChild(text);
 
       outerStartAngle += angle;
@@ -214,7 +214,7 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
       }
       
       text.setAttribute('transform', `rotate(${textRotation}, ${labelX}, ${labelY})`);
-      text.textContent = `(${item.label} ${Math.round(item.value)})`;
+      text.textContent = `${item.label} ${Math.round(item.value)}`;
       innerRing.appendChild(text);
 
       innerStartAngle += angle;

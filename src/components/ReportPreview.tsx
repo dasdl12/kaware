@@ -69,14 +69,17 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
         },
         // 在柱子顶部显示分数
         datalabels: {
-          anchor: 'end' as const,
-          align: 'end' as const,
+          // 将文本放到柱内部顶部
+          anchor: 'end',
+          align: 'top',
           color: '#1a1a1a',
           font: {
             family: '-apple-system, BlinkMacSystemFont, sans-serif',
             weight: 600,
             size: 12
           },
+          offset: -4,
+          clip: false,
           formatter: (value: number) => `${value}`
         }
       },
