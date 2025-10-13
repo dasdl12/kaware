@@ -28,7 +28,7 @@ export const parseExcelFile = (file: File): Promise<ExcelDataRow[]> => {
         // 验证必要字段
         const requiredFields = ['姓名', '日期', '想明白', '讲清楚', '执行到位', 
                                '管自己', '管业务', '管团队', 
-                               '劳模型', '好人型', '严师型', '遥控型', 
+                               '劳模型', '好人型', '严师型', '布置型', 
                                '隐身型', '黄牛型', '军师型', '内敛型'];
         
         const firstRow = jsonData[0];
@@ -61,7 +61,7 @@ export const validateExcelData = (data: ExcelDataRow[]): { valid: boolean; error
   data.forEach((row, index) => {
     // 验证分数范围 (0-100)
     const scoreFields = ['想明白', '讲清楚', '执行到位', '管自己', '管业务', '管团队',
-                         '劳模型', '好人型', '严师型', '遥控型', '隐身型', '黄牛型', '军师型', '内敛型'];
+                         '劳模型', '好人型', '严师型', '布置型', '隐身型', '黄牛型', '军师型', '内敛型'];
     
     scoreFields.forEach(field => {
       const value = row[field as keyof ExcelDataRow];

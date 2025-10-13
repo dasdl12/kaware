@@ -52,7 +52,7 @@ export const processExcelData = (row: ExcelDataRow, currentConfigs?: Record<stri
     { label: '劳模型', value: row.劳模型 },
     { label: '好人型', value: row.好人型 },
     { label: '严师型', value: row.严师型 },
-    { label: '遥控型', value: row.遥控型 },
+    { label: '布置型', value: row.布置型 },
     { label: '隐身型', value: row.隐身型 },
     { label: '黄牛型', value: row.黄牛型 },
     { label: '军师型', value: row.军师型 },

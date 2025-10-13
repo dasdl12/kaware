@@ -13,7 +13,7 @@ export interface ExcelDataRow {
   劳模型: number;
   好人型: number;
   严师型: number;
-  遥控型: number;
+  布置型: number;
   隐身型: number;
   黄牛型: number;
   军师型: number;

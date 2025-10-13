@@ -384,7 +384,7 @@ const App: React.FC = () => {
               <div className="upload-section">
                 <h2>上传Excel数据文件</h2>
                 <p className="upload-hint">
-                  请上传包含以下字段的Excel文件：姓名、日期、想明白、讲清楚、执行到位、管自己、管业务、管团队、劳模型、好人型、严师型、遥控型、隐身型、黄牛型、军师型、内敛型
+                  请上传包含以下字段的Excel文件：姓名、日期、想明白、讲清楚、执行到位、管自己、管业务、管团队、劳模型、好人型、严师型、布置型、隐身型、黄牛型、军师型、内敛型
                 </p>
                 <Upload
                   beforeUpload={handleExcelUpload}
