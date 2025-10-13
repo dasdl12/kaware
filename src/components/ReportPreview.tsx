@@ -152,7 +152,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
             <h2 className="section-title">一、报告阅读说明</h2>
             <div className="reading-guide">
               <div className="guide-header">
-                <h3 className="guide-motto">模式无好坏，觉察即改变</h3>
+                <h3 className="guide-motto">类型无好坏，觉察即改变</h3>
               </div>
 
               <div className="guide-principles">

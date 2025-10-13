@@ -32,7 +32,16 @@ const App: React.FC = () => {
   const [managementConfigs, setManagementConfigs] = useState<Record<string, ManagementTypeDetail>>(() => {
     try {
       const saved = localStorage.getItem('report_management_configs');
-      return saved ? JSON.parse(saved) as Record<string, ManagementTypeDetail> : managementTypesConfig;
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, ManagementTypeDetail>;
+        // 迁移逻辑：如果存在"遥控型"键，重命名为"布置型"
+        if (parsed['遥控型'] && !parsed['布置型']) {
+          parsed['布置型'] = { ...parsed['遥控型'], type: '布置型' };
+          delete parsed['遥控型'];
+        }
+        return parsed;
+      }
+      return managementTypesConfig;
     } catch {
       return managementTypesConfig;
     }
