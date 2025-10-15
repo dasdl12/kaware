@@ -262,7 +262,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
                 }} 
               />
               <div className="appendix-content">
-                {baseConfig.appendixText}
+                {formatParagraph(baseConfig.appendixText)}
               </div>
               <p>报告生成时间：{reportData.date}</p>
             </div>
