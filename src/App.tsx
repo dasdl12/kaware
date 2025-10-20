@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout, Button, Upload, message, Spin, Select, Space, Card, Row, Col } from 'antd';
-import { UploadOutlined, DownloadOutlined, FileTextOutlined, PictureOutlined } from '@ant-design/icons';
+import { UploadOutlined, DownloadOutlined, FileTextOutlined, PictureOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
 import { parseExcelFile, validateExcelData } from './utils/excelParser';
 import { processBatchExcelData } from './utils/dataProcessor';
 import { ReportPreview, ReportPreviewHandle } from './components/ReportPreview';
 import { ConfigManager } from './components/ConfigManager';
-import { exportToHTML, exportToPNG, exportToJPEG, batchExportHTML } from './utils/exportUtils';
+import { exportToHTML, exportToPNG, exportToJPEG, exportToPDF, batchExportHTML } from './utils/exportUtils';
 import { loadSharedConfig } from './utils/sharedConfigApi';
 import { ExcelDataRow, ReportData, BaseConfig, ManagementTypeDetail } from './types';
 import { managementTypesConfig, defaultBaseConfig } from './config/managementTypes';
@@ -158,6 +158,28 @@ const App: React.FC = () => {
       message.success('JPEG导出成功');
     } catch (error) {
       message.error('JPEG导出失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    const element = reportRef.current?.getReportElement();
+    if (!element) {
+      message.error('无法获取报告内容');
+      return;
+    }
+
+    const currentReport = reportDataList[selectedReportIndex];
+    const filename = `${currentReport.name}_管理觉察测评报告.pdf`;
+    
+    try {
+      setLoading(true);
+      message.loading({ content: '正在生成PDF...', key: 'pdf' });
+      await exportToPDF(element, filename);
+      message.success({ content: 'PDF导出成功', key: 'pdf' });
+    } catch (error) {
+      message.error({ content: 'PDF导出失败', key: 'pdf' });
     } finally {
       setLoading(false);
     }
@@ -350,6 +372,100 @@ const App: React.FC = () => {
     }
   };
 
+  // 批量导出PDF
+  const handleBatchExportPDF = async () => {
+    if (reportDataList.length === 0) {
+      message.error('没有可导出的报告');
+      return;
+    }
+
+    const originalIndex = selectedReportIndex;
+
+    try {
+      setBatchExporting(true);
+      const zip = (await import('jszip')).default;
+      const zipFile = new zip();
+
+      for (let i = 0; i < reportDataList.length; i++) {
+        setExportProgress({ current: i + 1, total: reportDataList.length });
+        
+        // 切换到对应的报告
+        setSelectedReportIndex(i);
+        
+        // 等待UI更新和渲染完成
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const element = reportRef.current?.getReportElement();
+        if (element) {
+          try {
+            const { toPng } = await import('html-to-image');
+            const { jsPDF } = await import('jspdf');
+            
+            // 先转PNG
+            const dataUrl = await toPng(element, {
+              quality: 1.0,
+              pixelRatio: 2,
+              cacheBust: true,
+              skipFonts: false,
+              includeQueryParams: true,
+              backgroundColor: '#f5f7fa',
+              filter: () => true,
+              style: {
+                margin: '0',
+                padding: '0',
+                transform: 'scale(1)'
+              }
+            });
+
+            // 创建图片获取尺寸
+            const img = new Image();
+            img.src = dataUrl;
+            
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = reject;
+            });
+
+            // 创建PDF
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+            const pdfWidth = 210;
+            const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+            
+            const pdf = new jsPDF({
+              orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+              unit: 'mm',
+              format: [pdfWidth, pdfHeight]
+            });
+
+            pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+
+            // 将PDF转换为blob并添加到ZIP
+            const pdfBlob = pdf.output('blob');
+            zipFile.file(`${reportDataList[i].name}_管理觉察测评报告.pdf`, pdfBlob);
+          } catch (error) {
+            console.error(`导出PDF失败 (${reportDataList[i].name}):`, error);
+          }
+        }
+      }
+
+      // 生成并下载压缩包
+      const content = await zipFile.generateAsync({ type: 'blob' });
+      const timestamp = new Date().toISOString().split('T')[0];
+      const { saveAs } = await import('file-saver');
+      saveAs(content, `管理觉察测评报告_批量导出_PDF_${timestamp}.zip`);
+
+      message.success(`批量导出PDF成功！共${reportDataList.length}份报告`);
+    } catch (error) {
+      console.error('批量导出PDF失败:', error);
+      message.error('批量导出PDF失败');
+    } finally {
+      setBatchExporting(false);
+      setExportProgress({ current: 0, total: 0 });
+      setSelectedReportIndex(originalIndex);
+    }
+  };
+
   return (
     <Layout className="app-layout">
       <Header className="app-header">
@@ -481,6 +597,13 @@ const App: React.FC = () => {
                         >
                           导出JPG
                         </Button>
+                        <Button 
+                          icon={<FilePdfOutlined />} 
+                          onClick={handleExportPDF}
+                          type="primary"
+                        >
+                          导出PDF
+                        </Button>
                       </Space>
                       {reportDataList.length > 1 && (
                         <Space>
@@ -507,6 +630,14 @@ const App: React.FC = () => {
                             disabled={batchExporting}
                           >
                             批量导出JPG
+                          </Button>
+                          <Button 
+                            icon={<DownloadOutlined />} 
+                            onClick={handleBatchExportPDF}
+                            type="primary"
+                            disabled={batchExporting}
+                          >
+                            批量导出PDF
                           </Button>
                         </Space>
                       )}

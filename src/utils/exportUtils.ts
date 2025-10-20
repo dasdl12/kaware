@@ -1,6 +1,7 @@
 import { toPng, toJpeg } from 'html-to-image';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
+import { jsPDF } from 'jspdf';
 
 /**
  * 导出为HTML文件
@@ -321,4 +322,140 @@ export const batchExportJPEG = async (
   const content = await zip.generateAsync({ type: 'blob' });
   const timestamp = new Date().toISOString().split('T')[0];
   saveAs(content, `管理觉察测评报告_批量导出_JPG_${timestamp}.zip`);
+};
+
+/**
+ * 导出为PDF（先转PNG再转PDF，避免页面截断问题）
+ */
+export const exportToPDF = async (element: HTMLElement, filename: string) => {
+  try {
+    // 步骤1：先将HTML转换为PNG图片
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const dataUrl = await toPng(element, {
+      quality: 1.0,
+      pixelRatio: 2,
+      cacheBust: true,
+      skipFonts: false,
+      includeQueryParams: true,
+      backgroundColor: '#f5f7fa',
+      filter: () => true,
+      style: {
+        margin: '0',
+        padding: '0',
+        transform: 'scale(1)'
+      }
+    });
+
+    // 步骤2：创建一个临时图片元素获取尺寸
+    const img = new Image();
+    img.src = dataUrl;
+    
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
+    // 步骤3：创建PDF并添加图片
+    // 计算PDF尺寸（A4纸张比例，但根据内容高度调整）
+    const imgWidth = img.width;
+    const imgHeight = img.height;
+    
+    // 使用A4宽度，高度按比例计算
+    const pdfWidth = 210; // A4宽度 mm
+    const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+    
+    const pdf = new jsPDF({
+      orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+      unit: 'mm',
+      format: [pdfWidth, pdfHeight]
+    });
+
+    // 将图片添加到PDF（填充整个页面）
+    pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+
+    // 步骤4：保存PDF
+    pdf.save(filename);
+  } catch (error) {
+    console.error('导出PDF失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 批量导出PDF到压缩包
+ */
+export const batchExportPDF = async (
+  elements: HTMLElement[],
+  names: string[],
+  onProgress?: (current: number, total: number) => void
+) => {
+  const zip = new JSZip();
+  
+  for (let i = 0; i < elements.length; i++) {
+    if (onProgress) {
+      onProgress(i + 1, elements.length);
+    }
+    
+    const element = elements[i];
+    const name = names[i];
+    
+    try {
+      // 等待元素完全渲染
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 转换为PNG
+      const dataUrl = await toPng(element, {
+        quality: 1.0,
+        pixelRatio: 2,
+        cacheBust: true,
+        skipFonts: false,
+        includeQueryParams: true,
+        backgroundColor: '#f5f7fa',
+        filter: () => true,
+        style: {
+          margin: '0',
+          padding: '0',
+          transform: 'scale(1)'
+        }
+      });
+
+      // 创建图片获取尺寸
+      const img = new Image();
+      img.src = dataUrl;
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      // 创建PDF
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      const pdfWidth = 210;
+      const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+      
+      const pdf = new jsPDF({
+        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
+      });
+
+      pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+
+      // 将PDF转换为blob并添加到ZIP
+      const pdfBlob = pdf.output('blob');
+      zip.file(`${name}_管理觉察测评报告.pdf`, pdfBlob);
+      
+      // 添加延迟避免浏览器阻塞
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error) {
+      console.error(`导出PDF失败 (${name}):`, error);
+    }
+  }
+  
+  // 生成压缩包
+  const content = await zip.generateAsync({ type: 'blob' });
+  const timestamp = new Date().toISOString().split('T')[0];
+  saveAs(content, `管理觉察测评报告_批量导出_PDF_${timestamp}.zip`);
 };
