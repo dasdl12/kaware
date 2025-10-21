@@ -14,7 +14,7 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
     const svg = svgRef.current;
     const outerRing = svg.querySelector('#outerRing');
     const innerRing = svg.querySelector('#innerRing');
-    
+
     if (!outerRing || !innerRing) return;
 
     // 清空现有内容
@@ -68,23 +68,28 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
       const minScore = Math.min(...dataArray.map(item => item.value));
       const scoreRange = maxScore - minScore;
 
-      const baseAngle = 360 / dataArray.length * 0.7;
-      const bonusAngle = 360 / dataArray.length * 0.3;
+      const baseAngle = (360 / dataArray.length) * 0.7;
+      const bonusAngle = (360 / dataArray.length) * 0.3;
 
       return dataArray.map(item => {
         if (scoreRange === 0) {
           return 360 / dataArray.length;
         }
-
         const scoreRatio = (item.value - minScore) / scoreRange;
         const dynamicBonus = bonusAngle * (0.3 + scoreRatio * 0.7);
-
         return baseAngle + dynamicBonus;
       });
     };
 
     // 创建环形扇区路径
-    const createRingSector = (cx: number, cy: number, innerRadius: number, outerRadius: number, startAngle: number, angle: number) => {
+    const createRingSector = (
+      cx: number,
+      cy: number,
+      innerRadius: number,
+      outerRadius: number,
+      startAngle: number,
+      angle: number
+    ) => {
       const startAngleRad = (startAngle * Math.PI) / 180;
       const endAngleRad = ((startAngle + angle) * Math.PI) / 180;
 
@@ -119,6 +124,13 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
 
     const thicknessMultiplier = 2.2;
 
+    // 🧩 压缩外环厚度差异
+    const outerThicknessValues = data.outer.map(o => o.thickness);
+    const maxT = Math.max(...outerThicknessValues);
+    const minT = Math.min(...outerThicknessValues);
+    const avgT = (maxT + minT) / 2;
+    const compressionFactor = 0.6; // 可调 (0.5~0.7 推荐值)
+
     // 计算外环动态角度
     const outerAngles = calculateDynamicAngles(data.outer);
     const outerTotalAngle = outerAngles.reduce((sum, angle) => sum + angle, 0);
@@ -128,7 +140,12 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
     let outerStartAngle = -90;
     data.outer.forEach((item, index) => {
       const angle = outerNormalizedAngles[index];
-      const dynamicOuterRadius = outerInnerRadius + item.thickness * thicknessMultiplier;
+
+      // 压缩厚度差异
+      const normalizedThickness = item.thickness - avgT;
+      const adjustedThickness = avgT + normalizedThickness * compressionFactor;
+
+      const dynamicOuterRadius = outerInnerRadius + adjustedThickness * thicknessMultiplier;
 
       const path = createRingSector(centerX, centerY, outerInnerRadius, dynamicOuterRadius, outerStartAngle, angle);
       path.setAttribute('fill', outerColors[index % outerColors.length]);
@@ -139,27 +156,25 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
       // 添加标签
       const labelAngle = outerStartAngle + angle / 2;
       const labelRadius = outerInnerRadius + (dynamicOuterRadius - outerInnerRadius) * 0.4;
-      const labelX = centerX + labelRadius * Math.cos(labelAngle * Math.PI / 180);
-      const labelY = centerY + labelRadius * Math.sin(labelAngle * Math.PI / 180);
+      const labelX = centerX + labelRadius * Math.cos((labelAngle * Math.PI) / 180);
+      const labelY = centerY + labelRadius * Math.sin((labelAngle * Math.PI) / 180);
 
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', String(labelX));
       text.setAttribute('y', String(labelY));
       text.setAttribute('class', 'ring-text');
-      // 内联所有样式确保导出时正确显示
-      text.setAttribute('style', 'font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; fill: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); text-anchor: middle; dominant-baseline: central; font-size: 17px;');
-      
-      // 标签旋转逻辑：让所有标签的顶部朝向圆心
+      text.setAttribute(
+        'style',
+        'font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; fill: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); text-anchor: middle; dominant-baseline: central; font-size: 17px;'
+      );
+
       let textRotation = labelAngle - 90;
-      
-      // 归一化角度到0-360范围
       let normalizedAngle = ((labelAngle % 360) + 360) % 360;
-      
-      // 如果在上半圆（9点钟到3点钟方向，即180°到360°），额外翻转180°让文字正向阅读
+
       if (normalizedAngle >= 180 && normalizedAngle <= 360) {
         textRotation += 180;
       }
-      
+
       text.setAttribute('transform', `rotate(${textRotation}, ${labelX}, ${labelY})`);
       text.textContent = `${item.label} ${Math.round(item.value)}`;
       outerRing.appendChild(text);
@@ -176,7 +191,6 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
     let innerStartAngle = -35;
     data.inner.forEach((item, index) => {
       const angle = innerNormalizedAngles[index];
-
       const baseInnerRadius = 45;
       const thicknessPerRank = 15;
       const rankBasedThickness = (4 - item.rank) * thicknessPerRank;
@@ -192,27 +206,25 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
       // 添加标签
       const labelAngle = innerStartAngle + angle / 2;
       const labelRadius = startRadius + (endRadius - startRadius) * 0.5;
-      const labelX = centerX + labelRadius * Math.cos(labelAngle * Math.PI / 180);
-      const labelY = centerY + labelRadius * Math.sin(labelAngle * Math.PI / 180);
+      const labelX = centerX + labelRadius * Math.cos((labelAngle * Math.PI) / 180);
+      const labelY = centerY + labelRadius * Math.sin((labelAngle * Math.PI) / 180);
 
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       text.setAttribute('x', String(labelX));
       text.setAttribute('y', String(labelY));
       text.setAttribute('class', 'ring-text');
-      // 内联所有样式确保导出时正确显示
-      text.setAttribute('style', 'font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; fill: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); text-anchor: middle; dominant-baseline: central; font-size: 15px;');
-      
-      // 标签旋转逻辑：让所有标签的顶部朝向圆心
+      text.setAttribute(
+        'style',
+        'font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; fill: white; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); text-anchor: middle; dominant-baseline: central; font-size: 15px;'
+      );
+
       let textRotation = labelAngle - 90;
-      
-      // 归一化角度到0-360范围
       let normalizedAngle = ((labelAngle % 360) + 360) % 360;
-      
-      // 如果在上半圆（9点钟到3点钟方向，即180°到360°），额外翻转180°让文字正向阅读
+
       if (normalizedAngle >= 180 && normalizedAngle <= 360) {
         textRotation += 180;
       }
-      
+
       text.setAttribute('transform', `rotate(${textRotation}, ${labelX}, ${labelY})`);
       text.textContent = `${item.label} ${Math.round(item.value)}`;
       innerRing.appendChild(text);
@@ -226,11 +238,8 @@ export const DoubleRingChart: React.FC<DoubleRingChartProps> = ({ data }) => {
       <svg ref={svgRef} id="doubleRingSvg" viewBox="0 0 400 400" style={{ width: '115%', height: '115%' }}>
         <g id="outerRing" className="outer-ring"></g>
         <g id="innerRing" className="inner-ring"></g>
-        <circle cx="200" cy="200" r="40" fill="#f8f9fa" stroke="#e5e5e7" strokeWidth="2"/>
+        <circle cx="200" cy="200" r="40" fill="#f8f9fa" stroke="#e5e5e7" strokeWidth="2" />
       </svg>
     </div>
   );
-};
-
-
-
+}
