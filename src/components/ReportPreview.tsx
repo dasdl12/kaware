@@ -142,7 +142,7 @@ export const ReportPreview = forwardRef<ReportPreviewHandle, ReportPreviewProps>
           <img src={baseConfig.logo} alt="Logo" className="cover-logo" />
           <img src={baseConfig.banner} alt="Banner" className="cover-banner" />
           <div className="cover-content">
-            <div className="subtitle">{reportData.date}</div>
+            <div className="subtitle">{reportData.name} {reportData.date}</div>
           </div>
         </div>
 
